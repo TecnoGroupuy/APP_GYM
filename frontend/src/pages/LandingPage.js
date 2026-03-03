@@ -88,13 +88,13 @@ const LandingPage = ({ onLoginClick, onRegisterClick }) => {
   return (
     <div className="min-h-screen bg-bootcamp-black overflow-x-hidden">
       <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrollY > 50 ? 'glass py-2 md:py-3' : 'bg-transparent py-2 md:py-6'}`}>
-        <div className="max-w-7xl mx-auto px-[0.5cm] md:px-6 lg:px-8 flex items-center justify-between">
-          <div className="flex items-center -mt-1 md:mt-0">
+        <div className="max-w-7xl mx-auto px-[0.5cm] md:px-6 lg:px-8 grid grid-cols-[2.5rem_1fr_2.5rem] items-center md:flex md:items-center md:justify-between">
+          <div className="col-start-2 justify-self-center md:col-auto md:justify-self-auto flex items-center -mt-1 md:mt-0">
             <BrandLogo
               size="lg"
               logoUrl={logoUrl}
               boxClassName="h-[8.6rem] min-w-[300px] max-w-[420px] md:h-32 md:min-w-[320px] md:max-w-[460px]"
-              imgClassName="object-left md:object-center scale-[1.46] md:scale-[1.2]"
+              imgClassName="object-center scale-[1.46] md:scale-[1.2]"
             />
           </div>
 
@@ -107,7 +107,7 @@ const LandingPage = ({ onLoginClick, onRegisterClick }) => {
             <button onClick={onLoginClick} className="btn-bootcamp text-sm py-2 px-6">Acceder</button>
           </div>
 
-          <button className="md:hidden text-white" onClick={() => setIsMenuOpen((v) => !v)}>
+          <button className="col-start-3 justify-self-end md:hidden text-white" onClick={() => setIsMenuOpen((v) => !v)}>
             {isMenuOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
           </button>
         </div>
