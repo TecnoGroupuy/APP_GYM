@@ -1,0 +1,5 @@
+Nombre,Apellido,cedula,Fecha nacimiento,Emergencia medica,correo,fecha de alta,estado
+Lucia,Fernandez,45678901,14/03/1994,Hipertension controlada,lucia.fernandez@email.com,01/02/2026,pending
+Martin,Silva,39876543,22/11/1988,Ninguna,martin.silva@email.com,10/02/2026,active
+Ana,Pereira,51234567,05/07/1997,Asma leve,ana.pereira@email.com,12/02/2026,pending
+Pedro,Gonzalez,47890123,17/09/1992,Alergia a penicilina,pedro.gonzalez@email.com,13/02/2026,inactive
