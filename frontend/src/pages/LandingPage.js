@@ -99,8 +99,8 @@ const LandingPage = ({ onLoginClick, onRegisterClick }) => {
             <BrandLogo
               size="lg"
               logoUrl={logoUrl}
-              boxClassName="h-[56px] w-[140px] sm:h-20 sm:w-[240px] md:h-24 md:w-[300px] lg:h-28 lg:w-[360px]"
-              imgClassName="object-left md:object-center"
+              boxClassName="h-20 w-[210px] sm:h-20 sm:w-[240px] md:h-24 md:w-[300px] lg:h-28 lg:w-[360px]"
+              imgClassName="object-left md:object-center scale-[1.2] md:scale-100 origin-left"
             />
           </div>
 
