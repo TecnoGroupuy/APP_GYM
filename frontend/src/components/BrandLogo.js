@@ -26,6 +26,10 @@ const loadRemoteLogo = async () => {
       .then((response) => response.json().catch(() => ({})).then((data) => ({ ok: response.ok, data })))
       .then(({ ok, data }) => {
         cachedRemoteLogo = ok ? data.logoUrl || '' : '';
+        if (cachedRemoteLogo) {
+          const preloadImage = new Image();
+          preloadImage.src = cachedRemoteLogo;
+        }
         return cachedRemoteLogo;
       })
       .catch(() => {
@@ -43,7 +47,9 @@ const BrandLogo = ({
   className = '',
   logoUrl = '',
   boxClassName = '',
-  imgClassName = ''
+  imgClassName = '',
+  imgLoading = 'lazy',
+  imgFetchPriority = 'auto'
 }) => {
   const styles = sizeMap[size] || sizeMap.md;
   const [remoteLogo, setRemoteLogo] = useState(() => {
@@ -88,7 +94,8 @@ const BrandLogo = ({
             src={resolvedLogo}
             alt="Boot Camp"
             className={`h-full w-full max-w-full object-contain object-center ${imgClassName}`}
-            loading="lazy"
+            loading={imgLoading}
+            fetchPriority={imgFetchPriority}
           />
         </div>
       ) : (
@@ -102,6 +109,7 @@ const BrandLogo = ({
     </div>
   );
 };
+
 
 export default BrandLogo;
 

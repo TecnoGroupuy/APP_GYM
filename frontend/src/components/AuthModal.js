@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { X, Eye, EyeOff, ArrowLeft, CheckCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import BrandLogo from './BrandLogo';
@@ -111,29 +111,15 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }) => {
   if (!isOpen) return null;
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-      >
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
         {/* Backdrop */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="absolute inset-0 bg-black/90 backdrop-blur-sm"
+        <div
+          className="absolute inset-0 bg-black/90"
           onClick={onClose}
         />
 
         {/* Modal */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          className="relative w-full max-w-md bg-bootcamp-gray border border-bootcamp-orange/20 overflow-hidden max-h-[90vh] overflow-y-auto"
-        >
+        <div className="relative w-full max-w-md bg-bootcamp-gray border border-bootcamp-orange/20 overflow-hidden max-h-[90vh] overflow-y-auto">
           {/* Decorative corners */}
           <div className="absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 border-bootcamp-orange" />
           <div className="absolute top-0 right-0 w-16 h-16 border-t-2 border-r-2 border-bootcamp-orange" />
@@ -152,7 +138,7 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }) => {
           <div className="p-8">
             {/* Logo */}
             <div className="flex justify-center mb-8">
-              <BrandLogo size="sm" />
+              <BrandLogo size="sm" logoUrl="/assets/logo-bootcamp.png" imgLoading="eager" imgFetchPriority="high" />
             </div>
 
             {success ? (
@@ -466,9 +452,8 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }) => {
               </>
             )}
           </div>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+        </div>
+      </div>
   );
 };
 

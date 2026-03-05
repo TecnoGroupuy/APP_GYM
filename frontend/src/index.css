@@ -238,6 +238,65 @@ body {
   border: 1px solid rgba(255, 107, 0, 0.1);
 }
 
+/* Hero border neon trace */
+.hero-neon-trace {
+  position: relative;
+}
+
+.hero-neon-trace::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(255, 107, 0, 0.45);
+  box-shadow: inset 0 0 16px rgba(255, 107, 0, 0.2), 0 0 18px rgba(255, 107, 0, 0.14);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.hero-neon-trace::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  top: 0;
+  left: 0;
+  border-radius: 9999px;
+  background: radial-gradient(circle, #ffd9bf 0%, #ff9a47 45%, #ff6b00 100%);
+  box-shadow: 0 0 8px #ff9a47, 0 0 14px rgba(255, 107, 0, 0.9), 0 0 22px rgba(255, 107, 0, 0.6);
+  pointer-events: none;
+  z-index: 3;
+  animation: neon-border-orbit 5s linear infinite;
+}
+
+@keyframes neon-border-orbit {
+  0% {
+    top: 0;
+    left: 0;
+  }
+  25% {
+    top: 0;
+    left: calc(100% - 8px);
+  }
+  50% {
+    top: calc(100% - 8px);
+    left: calc(100% - 8px);
+  }
+  75% {
+    top: calc(100% - 8px);
+    left: 0;
+  }
+  100% {
+    top: 0;
+    left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-neon-trace::after {
+    animation: none;
+  }
+}
+
 .input-bootcamp {
   background-color: var(--bootcamp-black);
   border: 1px solid rgba(255, 255, 255, 0.1);

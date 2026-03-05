@@ -27,14 +27,17 @@ const defaultSchedule = [
   { day: 'Viernes', hours: '07:00 - 12:00 | 17:00 - 21:00' }
 ];
 
+const STATIC_LOGO_URL = '/assets/logo-bootcamp.png';
+
 const LandingPage = ({ onLoginClick, onRegisterClick }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
-  const [logoUrl, setLogoUrl] = useState('');
+  const [logoUrl] = useState(STATIC_LOGO_URL);
   const [sitePlans, setSitePlans] = useState(fallbackPlans);
   const [schedule, setSchedule] = useState(defaultSchedule);
   const [announcements, setAnnouncements] = useState([]);
   const [landingDataReady, setLandingDataReady] = useState(false);
+  const [heroImageLoaded, setHeroImageLoaded] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -52,7 +55,6 @@ const LandingPage = ({ onLoginClick, onRegisterClick }) => {
         if (Array.isArray(data.plans) && data.plans.length > 0) setSitePlans(data.plans);
         if (Array.isArray(data.schedule) && data.schedule.length > 0) setSchedule(data.schedule);
         if (Array.isArray(data.announcements)) setAnnouncements(data.announcements);
-        setLogoUrl(data.logoUrl || '');
       } catch (_error) {
         // fallback a datos locales
       } finally {
@@ -76,6 +78,10 @@ const LandingPage = ({ onLoginClick, onRegisterClick }) => {
     () => announcements.find((a) => a.sector === 'hero-right' && a.active && a.imageUrl),
     [announcements]
   );
+
+  useEffect(() => {
+    setHeroImageLoaded(false);
+  }, [heroAnnouncement?.imageUrl]);
 
   const scrollToSection = (id) => {
     const element = document.getElementById(id);
@@ -131,30 +137,30 @@ const LandingPage = ({ onLoginClick, onRegisterClick }) => {
       <section id="inicio" className="relative min-h-screen flex items-center overflow-hidden">
         <div className="absolute inset-0 bg-grid opacity-30" />
         <div className="absolute inset-0 bg-gradient-to-b from-bootcamp-black via-transparent to-bootcamp-black" />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 grid lg:grid-cols-2 gap-10 items-center">
-          <div>
-            <div className="inline-flex items-center gap-2 bg-bootcamp-orange/10 border border-bootcamp-orange/30 px-4 py-2 mb-6">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+          <div className="min-w-0">
+            <div className="inline-flex max-w-full flex-wrap items-center gap-2 bg-bootcamp-orange/10 border border-bootcamp-orange/30 px-4 py-2 mb-6">
               <Flame className="w-4 h-4 text-bootcamp-orange" />
-              <span className="text-sm font-bold uppercase tracking-wider text-bootcamp-orange">Entrenamiento Funcional</span>
+              <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-bootcamp-orange leading-tight">Entrenamiento Funcional</span>
             </div>
-            <h1 className="text-5xl md:text-7xl font-black leading-none mb-6">
+            <h1 className="text-[clamp(1.95rem,11vw,4.5rem)] md:text-7xl font-black leading-[0.92] mb-6">
               <span className="block">TRANSFORMA</span>
               <span className="block text-stroke">TU ENERGIA</span>
             </h1>
-            <p className="text-lg text-gray-400 mb-8 max-w-xl">
+            <p className="text-base sm:text-lg leading-relaxed text-gray-400 mb-8 max-w-xl">
               Entrenamientos funcionales para fuerza, movilidad y resistencia real. Comunidad, seguimiento y resultados.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <button onClick={onRegisterClick} className="btn-bootcamp text-lg">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full">
+              <button onClick={onRegisterClick} className="btn-bootcamp w-full sm:w-auto text-base sm:text-lg text-center">
                 Comenzar Ahora <ArrowRight className="inline-block ml-2 w-5 h-5" />
               </button>
-              <button onClick={() => scrollToSection('planes')} className="px-8 py-4 border-2 border-white/20 font-bold uppercase tracking-wider hover:border-bootcamp-orange hover:text-bootcamp-orange transition-all">
+              <button onClick={() => scrollToSection('planes')} className="w-full sm:w-auto px-6 sm:px-8 py-4 text-base sm:text-lg text-center border-2 border-white/20 font-bold uppercase tracking-wider hover:border-bootcamp-orange hover:text-bootcamp-orange transition-all">
                 Ver Planes
               </button>
             </div>
-            <div className="flex gap-8 mt-12">
+            <div className="mt-28 sm:mt-12 flex w-full justify-center sm:justify-start gap-6 sm:gap-8">
               {heroStats.map((s) => (
-                <div key={s.label}>
+                <div key={s.label} className="text-center sm:text-left">
                   <div className="text-3xl font-black text-bootcamp-orange">{s.value}</div>
                   <div className="text-sm text-gray-500 uppercase">{s.label}</div>
                 </div>
@@ -162,25 +168,28 @@ const LandingPage = ({ onLoginClick, onRegisterClick }) => {
             </div>
           </div>
 
-          <div className="hidden lg:block card-bootcamp p-0 overflow-hidden min-h-[260px]">
+          <button
+            type="button"
+            onClick={onRegisterClick}
+            className={`${heroAnnouncement && heroImageLoaded ? 'hero-neon-trace' : ''} hidden lg:block p-0 overflow-hidden min-h-[260px] w-full text-left cursor-pointer bg-transparent border-0 shadow-none`}
+            aria-label="Abrir registro"
+          >
             {!landingDataReady ? (
               <div className="w-full h-full bg-bootcamp-gray/40" />
             ) : heroAnnouncement ? (
-              <a
-                href={heroAnnouncement.linkUrl || '#'}
-                target={heroAnnouncement.linkUrl ? '_blank' : undefined}
-                rel={heroAnnouncement.linkUrl ? 'noopener noreferrer' : undefined}
-                className="block w-full h-full"
-              >
-                <img src={heroAnnouncement.imageUrl} alt={heroAnnouncement.title || 'Anuncio'} className="w-full h-full object-cover" />
-              </a>
+              <img
+                src={heroAnnouncement.imageUrl}
+                alt={heroAnnouncement.title || 'Anuncio'}
+                className="w-full h-full object-cover"
+                onLoad={() => setHeroImageLoaded(true)}
+              />
             ) : (
               <div className="p-8 h-full flex flex-col justify-center items-center text-center">
                 <Users className="w-20 h-20 text-bootcamp-orange mx-auto mb-4" />
                 <p className="text-gray-400 uppercase tracking-widest text-sm">Comunidad Boot Camp</p>
               </div>
             )}
-          </div>
+          </button>
         </div>
       </section>
 
@@ -297,7 +306,7 @@ const LandingPage = ({ onLoginClick, onRegisterClick }) => {
               boxClassName="h-16 w-[180px] sm:h-20 sm:w-[220px] md:h-24 md:w-[260px]"
             />
           </div>
-          <div className="text-gray-500 text-sm">© 2026 Boot Camp Training. Todos los derechos reservados.</div>
+          <div className="text-gray-500 text-sm">ï¿½ 2026 Boot Camp Training. Todos los derechos reservados.</div>
           <div className="flex gap-6">
             <button onClick={onLoginClick} className="text-sm text-gray-400 hover:text-bootcamp-orange">Acceder</button>
             <button onClick={onRegisterClick} className="text-sm text-gray-400 hover:text-bootcamp-orange">Registrarse</button>
@@ -309,4 +318,3 @@ const LandingPage = ({ onLoginClick, onRegisterClick }) => {
 };
 
 export default LandingPage;
-
