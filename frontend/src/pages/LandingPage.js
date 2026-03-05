@@ -94,12 +94,12 @@ const LandingPage = ({ onLoginClick, onRegisterClick }) => {
   return (
     <div className="min-h-screen bg-bootcamp-black overflow-x-hidden">
       <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrollY > 50 ? 'glass py-2 md:py-3' : 'bg-transparent py-2 md:py-6'}`}>
-        <div className="max-w-7xl mx-auto px-[0.5cm] md:px-6 lg:px-8 flex items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center -mt-1 md:mt-0">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-6 lg:px-8 flex items-center justify-between gap-3">
+          <div className="flex items-center flex-shrink-0 -mt-1 md:mt-0">
             <BrandLogo
               size="lg"
               logoUrl={logoUrl}
-              boxClassName="h-[72px] w-[210px] sm:h-20 sm:w-[240px] md:h-24 md:w-[300px] lg:h-28 lg:w-[360px]"
+              boxClassName="h-[56px] w-[140px] sm:h-20 sm:w-[240px] md:h-24 md:w-[300px] lg:h-28 lg:w-[360px]"
               imgClassName="object-left md:object-center"
             />
           </div>
@@ -113,7 +113,11 @@ const LandingPage = ({ onLoginClick, onRegisterClick }) => {
             <button onClick={onLoginClick} className="btn-bootcamp text-sm py-2 px-6">Acceder</button>
           </div>
 
-          <button className="md:hidden text-white" onClick={() => setIsMenuOpen((v) => !v)}>
+          <button
+            className="md:hidden relative z-50 p-2 -mr-2 text-white"
+            onClick={() => setIsMenuOpen((v) => !v)}
+            aria-label={isMenuOpen ? 'Cerrar menu' : 'Abrir menu'}
+          >
             {isMenuOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
           </button>
         </div>
