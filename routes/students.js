@@ -609,6 +609,8 @@ router.get("/:id/payments", auth, isAdminOrTrainer, async (req, res) => {
         id: p._id,
         date: p.paidAt || p.createdAt || null,
         amount: Number(p.amount || 0),
+        planPrice: p.planPrice === null || p.planPrice === undefined ? null : Number(p.planPrice || 0),
+        discount: Number(p.discount || 0),
         method: p.method || "otro",
         reference: p.reference || p.externalId || "",
         status: p.status || "pending",
@@ -644,6 +646,9 @@ router.post("/:id/payments", auth, isAdminOrTrainer, async (req, res) => {
     if (!amount || amount <= 0) {
       return res.status(400).json({ message: "Monto invalido" });
     }
+    const basePrice = Number(req.body?.basePrice || amount || 0);
+    const incomingDiscount = Number(req.body?.discount || 0);
+    const discount = Math.min(Math.max(0, incomingDiscount), Math.max(0, basePrice));
 
     const paymentDate = req.body?.paymentDate ? new Date(req.body.paymentDate) : new Date();
     const paidAt = Number.isNaN(paymentDate.getTime()) ? new Date() : paymentDate;
@@ -651,6 +656,9 @@ router.post("/:id/payments", auth, isAdminOrTrainer, async (req, res) => {
     const payment = await Payment.create({
       user: user._id,
       amount,
+      amountPaid: amount,
+      planPrice: basePrice,
+      discount,
       currency: "UYU",
       method: parsePaymentMethod(req.body?.method),
       status: "paid",
@@ -665,6 +673,8 @@ router.post("/:id/payments", auth, isAdminOrTrainer, async (req, res) => {
       payment: {
         id: payment._id,
         amount: payment.amount,
+        planPrice: payment.planPrice,
+        discount: payment.discount,
         method: payment.method,
         status: payment.status,
         reference: payment.reference,
