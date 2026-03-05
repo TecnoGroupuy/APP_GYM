@@ -17,8 +17,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import BrandLogo from "../components/BrandLogo";
-
-const API_BASE_URL = process.env.REACT_APP_API_URL;
+import { API_BASE_URL } from "../utils/apiBase";
 
 const AdminSupervision = () => {
   const navigate = useNavigate();

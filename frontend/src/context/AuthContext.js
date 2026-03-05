@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useMemo, useState, useEffect } from 'react';
+import { API_BASE_URL } from '../utils/apiBase';
 
 const AuthContext = createContext(null);
-const API_BASE_URL = process.env.REACT_APP_API_URL;
 const TOKEN_KEY = 'bootcamp_token';
 const USER_KEY = 'bootcamp_user';
 
@@ -41,6 +41,14 @@ const getApiErrorMessage = (data, fallback) => {
   return fallback;
 };
 
+const parseApiResponse = async (response) => {
+  const contentType = response.headers.get('content-type') || '';
+  if (contentType.includes('application/json')) {
+    return response.json().catch(() => ({}));
+  }
+  return {};
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -74,7 +82,7 @@ export const AuthProvider = ({ children }) => {
           return;
         }
 
-        const data = await response.json();
+        const data = await parseApiResponse(response);
         const normalized = normalizeUser(data.user);
         setUser(normalized);
         localStorage.setItem(USER_KEY, JSON.stringify(normalized));
@@ -99,7 +107,7 @@ export const AuthProvider = ({ children }) => {
       body: JSON.stringify({ email, password })
     });
 
-    const data = await response.json();
+    const data = await parseApiResponse(response);
     if (!response.ok) {
       throw new Error(getApiErrorMessage(data, 'No se pudo iniciar sesion'));
     }
@@ -130,7 +138,7 @@ export const AuthProvider = ({ children }) => {
       body: JSON.stringify(payload)
     });
 
-    const data = await response.json();
+    const data = await parseApiResponse(response);
     if (!response.ok) {
       throw new Error(getApiErrorMessage(data, 'No se pudo registrar usuario'));
     }

@@ -10,8 +10,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import BrandLogo from '../components/BrandLogo';
 import ManualCheckIn from '../components/ManualCheckIn';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL;
+import { API_BASE_URL } from '../utils/apiBase';
 
 const emptyStats = {
   totalStudents: 0,

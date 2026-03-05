@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { plans as fallbackPlans, testimonials } from '../data/mockData';
 import BrandLogo from '../components/BrandLogo';
+import { API_BASE_URL } from '../utils/apiBase';
 
 const defaultSchedule = [
   { day: 'Lunes', hours: '07:00 - 12:00 | 17:00 - 21:00' },
@@ -27,7 +28,6 @@ const defaultSchedule = [
 ];
 
 const LandingPage = ({ onLoginClick, onRegisterClick }) => {
-  const API_BASE_URL = process.env.REACT_APP_API_URL;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
   const [logoUrl, setLogoUrl] = useState('');
@@ -88,13 +88,13 @@ const LandingPage = ({ onLoginClick, onRegisterClick }) => {
   return (
     <div className="min-h-screen bg-bootcamp-black overflow-x-hidden">
       <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrollY > 50 ? 'glass py-2 md:py-3' : 'bg-transparent py-2 md:py-6'}`}>
-        <div className="max-w-7xl mx-auto px-[0.5cm] md:px-6 lg:px-8 grid grid-cols-[2.5rem_1fr_2.5rem] items-center md:flex md:items-center md:justify-between">
-          <div className="col-start-2 justify-self-center md:col-auto md:justify-self-auto flex items-center -mt-1 md:mt-0">
+        <div className="max-w-7xl mx-auto px-[0.5cm] md:px-6 lg:px-8 flex items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center -mt-1 md:mt-0">
             <BrandLogo
               size="lg"
               logoUrl={logoUrl}
-              boxClassName="h-[8.6rem] min-w-[300px] max-w-[420px] md:h-32 md:min-w-[320px] md:max-w-[460px]"
-              imgClassName="object-center scale-[1.46] md:scale-[1.2]"
+              boxClassName="h-16 w-[180px] sm:h-20 sm:w-[240px] md:h-24 md:w-[300px] lg:h-28 lg:w-[360px]"
+              imgClassName="object-left md:object-center"
             />
           </div>
 
@@ -107,7 +107,7 @@ const LandingPage = ({ onLoginClick, onRegisterClick }) => {
             <button onClick={onLoginClick} className="btn-bootcamp text-sm py-2 px-6">Acceder</button>
           </div>
 
-          <button className="col-start-3 justify-self-end md:hidden text-white" onClick={() => setIsMenuOpen((v) => !v)}>
+          <button className="md:hidden text-white" onClick={() => setIsMenuOpen((v) => !v)}>
             {isMenuOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
           </button>
         </div>
@@ -294,8 +294,7 @@ const LandingPage = ({ onLoginClick, onRegisterClick }) => {
             <BrandLogo
               size="sm"
               logoUrl={logoUrl}
-              boxClassName="h-32 min-w-[270px] max-w-[380px]"
-              imgClassName="scale-[1.9]"
+              boxClassName="h-16 w-[180px] sm:h-20 sm:w-[220px] md:h-24 md:w-[260px]"
             />
           </div>
           <div className="text-gray-500 text-sm">© 2026 Boot Camp Training. Todos los derechos reservados.</div>

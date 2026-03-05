@@ -31,8 +31,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import BrandLogo from '../components/BrandLogo';
 import AdminRoutines from './AdminRoutines';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL;
+import { API_BASE_URL } from '../utils/apiBase';
 
 const emptyStats = {
   monthlyRevenue: 0,
@@ -143,6 +142,18 @@ const addDaysIsoDate = (baseDate, daysToAdd) => {
   if (Number.isNaN(date.getTime())) return '';
   date.setDate(date.getDate() + daysToAdd);
   return date.toISOString().slice(0, 10);
+};
+
+const normalizeDiscountAmount = (basePrice, discountValue) => {
+  const base = Math.max(0, Number(basePrice || 0));
+  const discount = Math.max(0, Number(discountValue || 0));
+  return Math.min(discount, base);
+};
+
+const calculatePaymentTotal = (basePrice, discountValue) => {
+  const base = Math.max(0, Number(basePrice || 0));
+  const discount = normalizeDiscountAmount(base, discountValue);
+  return Math.max(0, base - discount);
 };
 
 const paymentMethodLabel = (method) => {
@@ -306,7 +317,7 @@ const AdminDashboard = () => {
   const [paymentForm, setPaymentForm] = useState({
     planId: '',
     basePrice: 0,
-    discount: 0,
+    discount: '',
     total: 0,
     paymentMethod: 'Efectivo',
     paymentDate: getTodayIsoDate(),
@@ -1523,7 +1534,7 @@ const AdminDashboard = () => {
       setPaymentForm({
         planId: selectedPlan ? String(selectedPlan.id || selectedPlan._id) : '',
         basePrice,
-        discount: 0,
+        discount: '',
         total: basePrice,
         paymentMethod: 'Efectivo',
         paymentDate: getTodayIsoDate(),
@@ -2637,7 +2648,7 @@ const AdminDashboard = () => {
                     setPaymentForm({
                       planId: '',
                       basePrice: 0,
-                      discount: 0,
+                      discount: '',
                       total: 0,
                       paymentMethod: 'Efectivo',
                       paymentDate: getTodayIsoDate(),
@@ -3006,9 +3017,15 @@ const AdminDashboard = () => {
                                     const planId = e.target.value;
                                     const selectedPlan = paymentPlansCatalog.find((p) => String(p.id || p._id) === String(planId));
                                     const basePrice = Number(selectedPlan?.price || 0);
-                                    const discount = Number(paymentForm.discount || 0);
-                                    const total = Math.max(0, basePrice - (basePrice * discount) / 100);
-                                    setPaymentForm((prev) => ({ ...prev, planId, basePrice, total }));
+                                    const discount = normalizeDiscountAmount(basePrice, paymentForm.discount);
+                                    const total = calculatePaymentTotal(basePrice, discount);
+                                    setPaymentForm((prev) => ({
+                                      ...prev,
+                                      planId,
+                                      basePrice,
+                                      discount: prev.discount === '' ? '' : discount,
+                                      total
+                                    }));
                                   }}
                                   className="w-full input-bootcamp px-3 py-2 text-white"
                                 >
@@ -3025,23 +3042,28 @@ const AdminDashboard = () => {
 
                               <div>
                                 <label className="text-xs uppercase text-gray-400 block mb-1">Descuento</label>
-                                <select
+                                <input
+                                  type="text"
+                                  inputMode="numeric"
+                                  pattern="[0-9]*"
                                   value={paymentForm.discount}
                                   onChange={(e) => {
-                                    const discount = Number(e.target.value || 0);
+                                    const rawValue = String(e.target.value || '').replace(/[^\d]/g, '');
+                                    const discount = normalizeDiscountAmount(paymentForm.basePrice, rawValue);
                                     const basePrice = Number(paymentForm.basePrice || 0);
-                                    const total = Math.max(0, basePrice - (basePrice * discount) / 100);
-                                    setPaymentForm((prev) => ({ ...prev, discount, total }));
+                                    const total = calculatePaymentTotal(basePrice, discount);
+                                    setPaymentForm((prev) => ({
+                                      ...prev,
+                                      discount: rawValue === '' ? '' : discount,
+                                      total
+                                    }));
                                   }}
                                   className="w-full input-bootcamp px-3 py-2 text-white"
-                                >
-                                  <option value={0}>0%</option>
-                                  <option value={10}>10%</option>
-                                  <option value={20}>20%</option>
-                                  <option value={30}>30%</option>
-                                  <option value={40}>40%</option>
-                                  <option value={50}>50%</option>
-                                </select>
+                                  placeholder="Ej: 100"
+                                />
+                                <div className="mt-1 text-xs text-gray-500">
+                                  Monto en pesos. Maximo {formatCurrency(paymentForm.basePrice || 0)}
+                                </div>
                               </div>
                             </div>
 

@@ -1,21 +1,21 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { API_BASE_URL } from '../utils/apiBase';
 
 const sizeMap = {
   sm: {
     subtitle: 'text-[10px]',
-    logoBox: 'h-28 min-w-[220px] max-w-[320px]'
+    logoBox: 'h-16 w-[170px] sm:h-20 sm:w-[210px]'
   },
   md: {
     subtitle: 'text-xs',
-    logoBox: 'h-20 min-w-[180px] max-w-[280px]'
+    logoBox: 'h-16 w-[180px] sm:h-20 sm:w-[240px]'
   },
   lg: {
     subtitle: 'text-sm',
-    logoBox: 'h-24 min-w-[220px] max-w-[340px]'
+    logoBox: 'h-20 w-[220px] sm:h-24 sm:w-[280px] lg:h-28 lg:w-[340px]'
   }
 };
 
-const API_BASE_URL = process.env.REACT_APP_API_URL;
 let cachedRemoteLogo;
 let remoteLogoPromise = null;
 
@@ -81,13 +81,13 @@ const BrandLogo = ({
 
   const resolvedLogo = useMemo(() => logoUrl || remoteLogo || '', [logoUrl, remoteLogo]);
   return (
-    <div className={`inline-flex flex-col leading-none uppercase font-black tracking-tight ${className}`}>
+    <div className={`inline-flex max-w-full flex-col leading-none uppercase font-black tracking-tight ${className}`}>
       {resolvedLogo ? (
-        <div className={`${styles.logoBox} ${boxClassName} flex items-center justify-center overflow-hidden`}>
+        <div className={`${styles.logoBox} ${boxClassName} max-w-full flex items-center justify-center overflow-hidden`}>
           <img
             src={resolvedLogo}
             alt="Boot Camp"
-            className={`h-full w-full object-contain object-center ${imgClassName}`}
+            className={`h-full w-full max-w-full object-contain object-center ${imgClassName}`}
             loading="lazy"
           />
         </div>

@@ -12,8 +12,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import BrandLogo from '../components/BrandLogo';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL;
+import { API_BASE_URL } from '../utils/apiBase';
 
 const Dashboard = () => {
   const { user, logout, updateUser } = useAuth();

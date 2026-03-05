@@ -4,8 +4,7 @@ import {
   Search, UserPlus, CheckCircle, Phone,
   CreditCard, Clock, AlertCircle, X
 } from 'lucide-react';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL;
+import { API_BASE_URL } from '../utils/apiBase';
 
 const normalizeUser = (user) => ({
   id: user?._id || user?.id,

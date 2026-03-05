@@ -7,9 +7,8 @@ import TrainerDashboard from './pages/TrainerDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminSupervision from './pages/AdminSupervision';
 import AuthModal from './components/AuthModal';
+import { API_BASE_URL } from './utils/apiBase';
 import './index.css';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 const getApiErrorMessage = (data, fallback) => {
   if (data?.message) return data.message;
@@ -222,4 +221,3 @@ function App() {
 }
 
 export default App;
-
