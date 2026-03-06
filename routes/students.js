@@ -1,10 +1,10 @@
 const express = require("express");
-const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const Payment = require("../models/Payment");
 const SiteConfig = require("../models/SiteConfig");
 const emailService = require("../services/emailService");
 const auth = require("../middleware/auth");
+const { generateTemporaryPassword } = require("../utils/security");
 
 const router = express.Router();
 
@@ -236,13 +236,13 @@ router.post("/", auth, isAdminOrTrainer, async (req, res) => {
       }
     }
 
-    let passwordValue = normalizedPhone;
+    let passwordValue = generateTemporaryPassword(14);
     let appAccess = false;
     let invitedAt = null;
     let status = "pending";
 
     if (inviteToApp && cedula) {
-      passwordValue = await bcrypt.hash(cedula, 10);
+      passwordValue = generateTemporaryPassword(14);
       appAccess = true;
       invitedAt = new Date();
       status = "active";
@@ -372,13 +372,6 @@ router.post("/import", auth, isAdminOrTrainer, async (req, res) => {
           errors.push({ row: rowNumber, reason: `Plan no encontrado (${source.plan || "-"})` });
         }
 
-        const passwordSeed = documentNumber || normalizedPhone;
-        if (!passwordSeed) {
-          skipped += 1;
-          errors.push({ row: rowNumber, reason: "Se requiere cedula o telefono para password inicial" });
-          continue;
-        }
-
         const selectedPlanId = planId || "none";
         const passCount = getPlanPassCountFromPlans(selectedPlanId, plansCatalog);
         const calculatedExpiration = paymentDate ? addDays(paymentDate, 30) : null;
@@ -404,7 +397,7 @@ router.post("/import", auth, isAdminOrTrainer, async (req, res) => {
           planExpires: calculatedExpiration,
           expirationDate: calculatedExpiration,
           nextPaymentDate: calculatedExpiration,
-          password: String(passwordSeed),
+          password: generateTemporaryPassword(14),
           forcePasswordChange: true
         });
 
@@ -873,7 +866,8 @@ router.post("/:id/invite", auth, isAdminOrTrainer, async (req, res) => {
       });
     }
 
-    student.password = await bcrypt.hash(cedula, 10);
+    const tempPassword = generateTemporaryPassword(14);
+    student.password = tempPassword;
     student.forcePasswordChange = true;
     student.status = "active";
     student.appAccess = true;
@@ -886,10 +880,8 @@ router.post("/:id/invite", auth, isAdminOrTrainer, async (req, res) => {
       await emailService.send({
         to: student.email,
         subject: "¡Bienvenido a Boot Camp!",
-        text:
-          "Tu usuario es tu número de teléfono y tu contraseña es tu cédula. Al ingresar por primera vez deberás cambiarla.",
-        html:
-          "<p>Tu usuario es tu número de teléfono y tu contraseña es tu cédula.</p><p>Al ingresar por primera vez deberás cambiarla.</p>"
+        text: `Tu usuario es tu número de teléfono y tu contraseña temporal es: ${tempPassword}. Al ingresar por primera vez deberás cambiarla.`,
+        html: `<p>Tu usuario es tu número de teléfono.</p><p><strong>Contraseña temporal:</strong> ${tempPassword}</p><p>Al ingresar por primera vez deberás cambiarla.</p>`
       });
     }
 

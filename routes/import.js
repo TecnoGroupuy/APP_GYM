@@ -1,5 +1,4 @@
 const express = require("express");
-const bcrypt = require("bcryptjs");
 const mongoose = require("mongoose");
 const User = require("../models/User");
 const Payment = require("../models/Payment");
@@ -7,6 +6,7 @@ const Attendance = require("../models/Attendance");
 const Movement = require("../models/Movement");
 const SiteConfig = require("../models/SiteConfig");
 const auth = require("../middleware/auth");
+const { generateTemporaryPassword } = require("../utils/security");
 
 let PlanModel = null;
 try {
@@ -333,7 +333,6 @@ router.post("/excel", auth, isAdminOrTrainer, async (req, res) => {
         }
         const { turno, turnoId } = resolveTurno(turnoRaw);
 
-        const hashedPassword = await bcrypt.hash(phone, 10);
         const fechaAlta = new Date(importDate);
         // Payments are NOT imported. They start fresh from first manual registration.
         const user = await User.create({
@@ -355,7 +354,7 @@ router.post("/excel", auth, isAdminOrTrainer, async (req, res) => {
           memberSince: fechaAlta,
           plan: planResolved.planId || "none",
           planPrice: planResolved.planPrice,
-          password: hashedPassword,
+          password: generateTemporaryPassword(14),
           forcePasswordChange: true
         });
 
@@ -479,6 +478,10 @@ router.post("/excel", auth, isAdminOrTrainer, async (req, res) => {
 // TODO: remove this endpoint before production
 router.delete("/reset", auth, isAdminOrTrainer, async (_req, res) => {
   try {
+    if (process.env.ENABLE_DANGEROUS_IMPORT_RESET !== "true") {
+      return res.status(404).json({ message: "Not found" });
+    }
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const cutoffDate = new Date("2024-01-01T00:00:00.000Z");
@@ -518,6 +521,10 @@ router.delete("/reset", auth, isAdminOrTrainer, async (_req, res) => {
 // TODO: remove this endpoint before production
 router.delete("/reset-users-today", auth, isAdminOrTrainer, async (_req, res) => {
   try {
+    if (process.env.ENABLE_DANGEROUS_IMPORT_RESET !== "true") {
+      return res.status(404).json({ message: "Not found" });
+    }
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 

@@ -3,6 +3,7 @@ const Attendance = require("../models/Attendance");
 const User = require("../models/User");
 const ClassModel = require("../models/Class");
 const auth = require("../middleware/auth");
+const { generateTemporaryPassword } = require("../utils/security");
 
 const router = express.Router();
 
@@ -65,7 +66,7 @@ router.post("/manual", auth, async (req, res) => {
     let tempPassword;
 
     if (!user && newUserData) {
-      tempPassword = Math.random().toString(36).slice(-8);
+      tempPassword = generateTemporaryPassword(12);
       user = new User({
         name: newUserData.name,
         phone: newUserData.phone,
@@ -147,7 +148,7 @@ router.post("/manual", auth, async (req, res) => {
       message: isNewUser ? "Nuevo usuario creado y asistencia registrada" : "Asistencia registrada",
       attendance: populatedAttendance,
       isNewUser,
-      tempPassword: isNewUser ? tempPassword : undefined
+      tempPassword: isNewUser && process.env.EXPOSE_TEMP_PASSWORDS === "true" ? tempPassword : undefined
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });

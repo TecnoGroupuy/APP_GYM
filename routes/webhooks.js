@@ -1,4 +1,5 @@
 const express = require("express");
+const crypto = require("crypto");
 const mongoose = require("mongoose");
 const User = require("../models/User");
 const Payment = require("../models/Payment");
@@ -45,16 +46,49 @@ const fetchMercadoPagoPayment = async (paymentId) => {
   return response.json();
 };
 
+const parseSignatureHeader = (signatureHeader) => {
+  const parts = String(signatureHeader || "")
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  const parsed = {};
+  for (const part of parts) {
+    const [key, value] = part.split("=");
+    if (!key || !value) continue;
+    parsed[key.trim()] = value.trim();
+  }
+  return parsed;
+};
+
+const safeCompareHex = (expectedHex, incomingHex) => {
+  try {
+    const expected = Buffer.from(String(expectedHex || ""), "hex");
+    const incoming = Buffer.from(String(incomingHex || ""), "hex");
+    if (!expected.length || expected.length !== incoming.length) return false;
+    return crypto.timingSafeEqual(expected, incoming);
+  } catch (_error) {
+    return false;
+  }
+};
+
+const isMercadoPagoSignatureValid = (req, secret, paymentId) => {
+  const signatureHeader = req.headers["x-signature"];
+  const requestId = req.headers["x-request-id"];
+  if (!signatureHeader || !requestId || !paymentId) return false;
+
+  const parsed = parseSignatureHeader(signatureHeader);
+  const ts = parsed.ts;
+  const v1 = parsed.v1;
+  if (!ts || !v1) return false;
+
+  const manifest = `id:${paymentId};request-id:${requestId};ts:${ts};`;
+  const expected = crypto.createHmac("sha256", secret).update(manifest).digest("hex");
+  return safeCompareHex(expected, v1);
+};
+
 const resolvePaymentPayload = async (req) => {
   const body = req.body && typeof req.body === "object" ? req.body : {};
-  const directStatus = String(body.status || "").toLowerCase();
-  const directExternalReference = String(body.external_reference || body.externalReference || "").trim();
-  const hasDirectPayment = Boolean(directStatus || directExternalReference);
-
-  if (hasDirectPayment) {
-    return body;
-  }
-
   const paymentId =
     body?.data?.id ||
     body?.id ||
@@ -82,6 +116,24 @@ const findStudentByExternalReference = async (externalReference) => {
 
 router.post("/mercadopago", async (req, res) => {
   try {
+    const paymentId =
+      req.body?.data?.id ||
+      req.body?.id ||
+      req.query?.["data.id"] ||
+      req.query?.id ||
+      null;
+
+    const webhookSecret = String(process.env.MERCADOPAGO_WEBHOOK_SECRET || "").trim();
+    const isProduction = String(process.env.NODE_ENV || "").toLowerCase() === "production";
+
+    if (webhookSecret) {
+      if (!isMercadoPagoSignatureValid(req, webhookSecret, paymentId)) {
+        return res.status(401).json({ ok: false, processed: false, reason: "invalid_signature" });
+      }
+    } else if (isProduction) {
+      return res.status(503).json({ ok: false, processed: false, reason: "webhook_secret_missing" });
+    }
+
     const paymentPayload = await resolvePaymentPayload(req);
     if (!paymentPayload) {
       return res.status(200).json({ ok: true, processed: false, reason: "payment_not_found" });

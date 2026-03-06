@@ -12,6 +12,7 @@ const AdminAction = require("../models/AdminAction");
 const { parse } = require("csv-parse/sync");
 const emailService = require("../services/emailService");
 const auth = require("../middleware/auth");
+const { generateTemporaryPassword } = require("../utils/security");
 
 const router = express.Router();
 
@@ -814,7 +815,7 @@ router.post("/users/import-csv", auth, isAdmin, async (req, res) => {
       const status = ["active", "inactive", "suspended", "pending"].includes(statusRaw) ? statusRaw : "pending";
       const birthDate = parseFlexibleDate(birthDateRaw);
       const admissionDate = parseFlexibleDate(admissionDateRaw) || new Date();
-      const importPassword = buildImportPassword(documentNumber) || Math.random().toString(36).slice(-8);
+      const importPassword = generateTemporaryPassword(14);
 
       const existing = await User.findOne({
         $or: [{ documentNumber }, { email: email.toLowerCase() }]
@@ -899,9 +900,7 @@ router.post("/users/:id/activate-access", auth, isAdmin, async (req, res) => {
       return res.status(400).json({ message: "El usuario no tiene correo cargado" });
     }
 
-    const passwordSeed = user.documentNumber || user.email;
-    const normalizedSeed = buildImportPassword(passwordSeed);
-    const accessPassword = normalizedSeed || Math.random().toString(36).slice(-10);
+    const accessPassword = generateTemporaryPassword(14);
     user.password = accessPassword;
     user.forcePasswordChange = true;
     user.status = "active";

@@ -1,6 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { rateLimit } = require("express-rate-limit");
 const { body, validationResult } = require("express-validator");
 const User = require("../models/User");
 const authMiddleware = require("../middleware/auth");
@@ -8,6 +9,16 @@ const authMiddleware = require("../middleware/auth");
 const router = express.Router();
 
 const signToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+const loginWindowMs = Number(process.env.LOGIN_RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000);
+const loginMaxAttempts = Number(process.env.LOGIN_RATE_LIMIT_MAX || 8);
+
+const loginLimiter = rateLimit({
+  windowMs: loginWindowMs,
+  max: loginMaxAttempts,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Demasiados intentos de login. Intenta nuevamente en unos minutos." }
+});
 
 const serializeUser = (user) => ({
   id: user._id,
@@ -75,6 +86,7 @@ router.post(
 
 router.post(
   "/login",
+  loginLimiter,
   [
     body("email").notEmpty().withMessage("Usuario o email requerido"),
     body("password").notEmpty().withMessage("Contrasena requerida")

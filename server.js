@@ -3,6 +3,7 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const path = require("path");
+const helmet = require("helmet");
 const connectDatabase = require("./config/database");
 const { startNotificationJobs } = require("./jobs/notificationJobs");
 
@@ -11,14 +12,42 @@ connectDatabase();
 
 const app = express();
 
+app.disable("x-powered-by");
+app.set("trust proxy", 1);
+
+const allowedOrigins = String(process.env.CORS_ORIGIN || "*")
+  .split(",")
+  .map((item) => item.trim())
+  .filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "*"
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true
+  })
+);
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false,
+    contentSecurityPolicy: false
   })
 );
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use("/static", express.static(path.join(__dirname, "public")));
+
+app.use((error, _req, res, next) => {
+  if (error?.message === "Not allowed by CORS") {
+    return res.status(403).json({ message: "Origen no permitido" });
+  }
+  return next(error);
+});
 
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true, message: "API operativa" });
